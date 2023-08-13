@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <Title>DependencyInjection.ChildContainer</Title>
+        <Authors>BDuman</Authors>
+        <Description>The library that transparently provides the missing child container feature of Microsoft's DependencyInjection library.</Description>
+        <PackageProjectUrl>https://github.com/bduman/ms-dependencyinjection-childcontainer</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/bduman/ms-dependencyinjection-childcontainer</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageVersion>1.0.0</PackageVersion>
+        <PackageTags>dependencyInjection;childContainer</PackageTags>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    </ItemGroup>
+
+</Project>

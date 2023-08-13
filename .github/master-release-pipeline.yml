@@ -1,0 +1,37 @@
+name: Nuget Push
+
+env:
+  NUGET_FEED: https://api.nuget.org/v3/index.json
+  NUGET_KEY: ${{ secrets.NUGET_KEY }}
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]
+
+jobs:
+  build-test-pack-push:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/DependencyInjection.ChildContainer/
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.408
+      - name: Install dependencies
+        run:  dotnet restore
+      - name: Build
+        run:  dotnet build --configuration Release --no-restore
+      - name: Test
+        run: |
+          cd ../../test/DependencyInjection.ChildContainer.Tests/
+          dotnet test --verbosity normal
+      - name: Pack
+        run:  dotnet pack -v normal -c Release --no-build --no-restore
+      - name: Nuget Push
+        run:  dotnet nuget push ./nupkg/DependencyInjection.ChildContainer*.nupkg --source $NUGET_FEED --skip-duplica --api-key $NUGET_KEY
