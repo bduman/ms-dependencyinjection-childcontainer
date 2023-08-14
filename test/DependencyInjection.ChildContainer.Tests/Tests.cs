@@ -1,3 +1,4 @@
+using System.Reflection;
 using DependencyInjection.ChildContainer.Extensions;
 using DependencyInjection.ChildContainer.Tests.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,28 @@ public class Tests
         IServiceProvider childServiceProvider = rootServiceProvider.GetChildServiceProvider("child1");
         IGreeter? childGreeter = childServiceProvider.GetService<IGreeter>();
         Assert.IsType<Hi>(childGreeter);
+    }
+    
+    [Fact]
+    public void ChildContainerAccessToParentContainer()
+    {
+        IServiceCollection rootCollection = new ServiceCollection();
+        IServiceCollection childCollection = rootCollection.CreateChildCollection("child1");
+
+        IServiceProvider? rootServiceProvider = rootCollection.BuildServiceProvider();
+        
+        IServiceProvider childServiceProvider = rootServiceProvider.GetChildServiceProvider("child1");
+        IServiceProvider parentServiceProvider = childServiceProvider.GetService<IParentServiceProvider>();
+
+        IServiceProvider? parentServiceProviderEngineScope = (IServiceProvider)parentServiceProvider.GetType()
+            .GetField("_inner", BindingFlags.NonPublic | BindingFlags.Instance)
+            .GetValue(parentServiceProvider);
+
+        IServiceProvider? expectedRootServiceProviderGetField = (IServiceProvider?)parentServiceProviderEngineScope.GetType()
+            .GetProperty("RootProvider", BindingFlags.NonPublic | BindingFlags.Instance)
+            .GetValue(parentServiceProviderEngineScope);
+        
+        Assert.Equal(rootServiceProvider, expectedRootServiceProviderGetField);
     }
 
     [Fact]
